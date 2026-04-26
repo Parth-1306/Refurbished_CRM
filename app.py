@@ -326,11 +326,11 @@ def dashboard():
     devices = cursor.fetchall()
     
     total_devices = len(devices)
-    total_buyback = sum(d['BuybackPrice'] for d in devices)
+    total_buyback = sum((d.get('BuybackPrice') or 0) for d in devices)
     
     # Calculate simulated actuals since we don't store exact historical profit in DB
-    total_revenue = sum(int(d['BuybackPrice'] * 1.35) for d in devices)
-    total_profit = sum(int(d['BuybackPrice'] * 0.25) for d in devices)
+    total_revenue = sum(int((d.get('BuybackPrice') or 0) * 1.35) for d in devices)
+    total_profit = sum(int((d.get('BuybackPrice') or 0) * 0.25) for d in devices)
     avg_profit = int(total_profit / total_devices) if total_devices > 0 else 0
     
     stats = {
@@ -339,8 +339,8 @@ def dashboard():
         'total_revenue': total_revenue,
         'total_profit': total_profit,
         'avg_profit': avg_profit,
-        'repair': len([d for d in devices if d['CurrentStatus'] == 'Repair']),
-        'resale': len([d for d in devices if d['CurrentStatus'] == 'Resale'])
+        'repair': len([d for d in devices if d.get('CurrentStatus') == 'Repair']),
+        'resale': len([d for d in devices if d.get('CurrentStatus') == 'Resale'])
     }
     
     cursor.execute("SELECT Brand, COUNT(*) as count FROM Devices GROUP BY Brand")
@@ -405,7 +405,7 @@ def customer_profile(customer_id):
     logs = cursor.fetchall()
     conn.close()
     
-    total_value = sum(d['BuybackPrice'] for d in devices)
+    total_value = sum((d.get('BuybackPrice') or 0) for d in devices)
     return render_template('customer_profile.html', customer=customer, devices=devices, logs=logs, total_value=total_value)
 
 @app.route('/edit_status/<int:device_id>', methods=['POST'])
@@ -456,8 +456,8 @@ def track_device(ticket_id):
     conn.close()
     
     if device:
-        status = device['CurrentStatus']
-        price = device['BuybackPrice']
+        status = device.get('CurrentStatus') or 'Repair'
+        price = device.get('BuybackPrice') or 'Evaluating...'
     else:
         status = 'Repair'
         price = 'Evaluating...'
