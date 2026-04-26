@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Devices | RefurbTech Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #070b14; color: white; font-family: 'Poppins', sans-serif; }
+        .navbar { background: rgba(7, 11, 20, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+        .glass-card { background: #0d1526; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 30px; margin-top: 40px; }
+        .table { color: #f1f5f9; border-color: rgba(255,255,255,0.05); }
+        .table thead { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
+        .badge-resale { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
+        .badge-repair { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid #eab308; }
+        .badge-salvage { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark py-3">
+        <div class="container">
+            <a href="/" class="navbar-brand fw-bold fs-4 text-decoration-none text-white">REFURB<span style="color:#38bdf8">TECH</span></a>
+            <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                <a href="/" class="btn btn-outline-light btn-sm d-none d-md-inline-block"><i class="fas fa-home me-1"></i> Main Page</a>
+                <a href="/customer_login" class="btn btn-outline-light btn-sm d-none d-md-inline-block"><i class="fas fa-user me-1"></i> Customer Login</a>
+                <a href="/dashboard" class="btn btn-outline-info btn-sm d-none d-md-inline-block">View Inventory</a>
+                <span class="mx-2 small text-secondary d-none d-sm-inline-block">Welcome, <span class="text-white fw-bold">{{ customer_name }}</span></span>
+                <a href="/logout" class="btn btn-outline-danger btn-sm ms-2"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div class="glass-card shadow-lg">
+            <h4 class="fw-bold mb-4">My Submitted Devices</h4>
+            
+            {% if devices %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Device</th>
+                            <th>Valuation</th>
+                            <th>Current Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in devices %}
+                        <tr>
+                            <td class="fw-bold text-info">{{ d.TicketID }}</td>
+                            <td>
+                                <div class="fw-bold">{{ d.Brand }} {{ d.Model }}</div>
+                                <div class="small text-secondary">{{ d.Storage }} | {{ d.DeviceType }}</div>
+                            </td>
+                            <td class="text-success fw-bold">₹{{ d.BuybackPrice }}</td>
+                            <td>
+                                <span class="badge {% if d.CurrentStatus == 'Resale' %}badge-resale{% elif d.CurrentStatus == 'Repair' %}badge-repair{% else %}badge-salvage{% endif %} px-3 py-2 rounded-pill small">{{ d.CurrentStatus }}</span>
+                            </td>
+                            <td>
+                                <a href="/track/{{ d.TicketID }}" class="btn btn-sm btn-outline-info rounded-pill px-3 mb-1"><i class="fas fa-satellite-dish"></i> Track</a>
+                                <button data-bs-toggle="modal" data-bs-target="#complaintModal{{ d.DeviceID }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 mb-1"><i class="fas fa-exclamation-triangle"></i> Report Issue</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-secondary">
+                <i class="fas fa-box-open fs-1 mb-3 opacity-50"></i>
+                <p>No devices found associated with your account.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="glass-card shadow-lg" style="margin-top: 0;">
+            <h4 class="fw-bold mb-4 text-white"><i class="fas fa-headset text-danger me-2"></i> My Support Tickets</h4>
+            {% if complaints %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Date Issued</th>
+                            <th>Related Device</th>
+                            <th>Issue Description</th>
+                            <th>Resolution Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in complaints %}
+                        <tr>
+                            <td class="text-dark small fw-bold">{{ c.CreatedAt.strftime('%b %d, %Y') if c.CreatedAt else 'Recent' }}</td>
+                            <td class="fw-bold text-dark">{{ c.Brand }} {{ c.Model }}</td>
+                            <td class="text-dark fw-bold">{{ c.Issue }}</td>
+                            <td>
+                                <span class="badge {% if c.Status == 'Open' %}bg-danger{% elif c.Status == 'In Progress' %}bg-warning text-dark{% else %}bg-success{% endif %} px-3 py-2 rounded-pill">{{ c.Status }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-center py-4 text-dark fw-bold">You have no active complaints.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="glass-card shadow-lg" style="margin-top: 0;">
+            <h4 class="fw-bold mb-4 text-white"><i class="fas fa-bell text-info me-2"></i> Status Notifications</h4>
+            <div class="list-group list-group-flush bg-transparent">
+                {% for n in notifications %}
+                <div class="list-group-item bg-transparent text-white-50 border-secondary py-3 px-0" style="border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 fs-4" style="color: #38bdf8;"><i class="fas fa-info-circle"></i></div>
+                        <div>
+                            <h6 class="mb-1 text-white">Update for {{ n.Brand }} {{ n.Model }} ({{ n.TicketID }})</h6>
+                            {% if n.OldStatus == 'System Received' %}
+                            <p class="mb-0 small">Device was successfully received. Initial status is <span class="badge mx-1" style="background-color: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid #38bdf8;">{{ n.NewStatus }}</span></p>
+                            {% else %}
+                            <p class="mb-0 small">Your device transitioned from <span class="badge bg-dark border border-secondary text-secondary mx-1">{{ n.OldStatus }}</span> to <span class="badge mx-1" style="background-color: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid #22c55e;">{{ n.NewStatus }}</span></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center py-4 text-secondary">No recent notifications.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Push Notification Alert Simulation -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1055">
+        {% if notifications and notifications[0].OldStatus != 'System Received' %}
+        <div id="liveAlert" class="toast text-bg-dark border-info shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-dark text-info border-secondary">
+                <i class="fas fa-envelope-open-text me-2"></i>
+                <strong class="me-auto">New Status Alert</strong>
+                <small>Just now</small>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body text-white">
+                Your <b>{{ notifications[0].Brand }} {{ notifications[0].Model }}</b> is now marked as <span class="badge bg-info text-dark ms-1">{{ notifications[0].NewStatus }}</span>.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Complaint Modals -->
+    {% for d in devices %}
+    <div class="modal fade" id="complaintModal{{ d.DeviceID }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form action="/raise_complaint" method="POST" class="modal-content bg-dark border-danger shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Report an Issue</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-white">
+                    <p class="small text-white-50 mb-3">Reporting issue for <strong>{{ d.Brand }} {{ d.Model }}</strong> (Ticket: {{ d.TicketID }})</p>
+                    <input type="hidden" name="device_id" value="{{ d.DeviceID }}">
+                    <label class="form-label text-secondary small text-uppercase tracking-widest mb-2">Describe the Problem</label>
+                    <textarea class="form-control text-dark bg-white border-secondary mb-2" name="issue" rows="4" placeholder="E.g., Device valuation is incorrect, or tracking is not updating..." required></textarea>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-bold px-4">Submit Complaint</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const alertEl = document.getElementById('liveAlert');
+            if (alertEl) { new bootstrap.Toast(alertEl, { delay: 6000 }).show(); }
+        });
+    </script>
+</body>
+</html>

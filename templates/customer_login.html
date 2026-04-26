@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Login | RefurbTech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #070b14; color: white; font-family: 'Poppins', sans-serif; }
+        .navbar { background: rgba(7, 11, 20, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+        .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 76px); padding: 20px; }
+        .login-card { background: #0d1526; padding: 40px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.2); width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .form-control { background-color: #1a2436 !important; border: 1px solid rgba(255,255,255,0.15); color: white !important; border-radius: 12px; padding: 12px 16px; }
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.5) !important; }
+        .form-control:focus { border-color: #38bdf8; box-shadow: none; }
+        .btn-info { background: #38bdf8; border: none; font-weight: bold; border-radius: 12px; }
+        .btn-info:hover { background: #0ea5e9; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark py-3">
+        <div class="container text-white">
+            <a href="/" class="navbar-brand fw-bold fs-4 text-decoration-none text-white">REFURB<span style="color:#38bdf8">TECH</span></a>
+            <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                <a href="/" class="btn btn-outline-light btn-sm"><i class="fas fa-home me-1"></i> Main Page</a>
+                <a href="/customer_login" class="btn btn-outline-light btn-sm"><i class="fas fa-user me-1"></i> Customer Login</a>
+                <a href="/dashboard" class="btn btn-outline-info btn-sm">View Inventory</a>
+            </div>
+        </div>
+    </nav>
+    <div class="login-wrapper">
+        <div class="login-card text-center">
+            <h3 class="fw-bold mb-2">Customer <span style="color:#38bdf8">Portal</span></h3>
+            <p class="small text-secondary mb-4">Track and view your devices</p>
+            
+            {% if error %}
+            <div class="alert alert-danger py-2 small border-0" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">{{ error }}</div>
+            {% endif %}
+            
+            <form method="POST">
+                <input type="text" name="contact" class="form-control mb-3" placeholder="Registered Email or Phone" required>
+                <input type="password" name="password" class="form-control mb-4" placeholder="Password" required>
+                <button type="submit" class="btn btn-info w-100 py-3 text-dark">Login to Portal</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

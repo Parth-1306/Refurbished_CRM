@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Device | RefurbTech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #070b14; color: #f1f5f9; height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;}
+        .glass-card { background: #0d1526; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 40px 30px; box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6); text-align: center; width: 100%; max-width: 400px;}
+        .icon-circle { width: 70px; height: 70px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 28px;}
+        .ticket-box { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .price-box { background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2); padding: 15px; border-radius: 12px; margin-bottom: 20px;}
+        .text-label { color: #94a3b8 !important; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 5px; display: block; }
+        
+        .status-box { padding: 15px; border-radius: 12px; text-align: left; border-left: 5px solid; }
+        .st-resale { background: rgba(34, 197, 94, 0.08); border-color: #22c55e; color: #22c55e; }
+        .st-repair { background: rgba(234, 179, 8, 0.08); border-color: #eab308; color: #eab308; }
+        .st-salvage { background: rgba(239, 68, 68, 0.08); border-color: #ef4444; color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <div class="icon-circle">
+            <i class="fas fa-satellite-dish fa-beat"></i>
+        </div>
+        <h4 class="fw-bold mb-1 text-white">Live Tracking</h4>
+        <p class="text-label mb-4" style="letter-spacing: 1.5px; font-size: 12px;">RefurbTech Customer Portal</p>
+
+        <div class="ticket-box">
+            <span class="text-label">Service Ticket ID</span>
+            <h3 class="fw-bold text-info mb-0">{{ ticket_id }}</h3>
+        </div>
+
+        <div class="price-box">
+            <span class="text-label" style="color: #38bdf8 !important;">Estimated Buyback</span>
+            <h2 class="fw-bold text-white mb-0">₹{{ price }}</h2>
+        </div>
+
+        <div class="status-box {% if status == 'Resale' %}st-resale{% elif status == 'Repair' %}st-repair{% else %}st-salvage{% endif %}">
+            <p class="text-label mb-1" style="color: inherit !important; opacity: 0.8;">Stage / Status</p>
+            <h5 class="fw-bold mb-0">
+                <i class="fas {% if status == 'Resale' %}fa-check-circle{% elif status == 'Repair' %}fa-wrench{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+                {{ stage }}
+            </h5>
+        </div>
+        <p class="small text-label mt-4 mb-0" style="font-size: 10px; opacity: 0.6;">Inventory tracked securely.</p>
+    </div>
+</body>
+</html>

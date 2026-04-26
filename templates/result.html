@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Result | RefurbTech</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+.navbar { background: rgba(7, 11, 20, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+body { background:#070b14; color:#ffffff; font-family:'Poppins', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+.main-content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.card-main { background:#0d1526; padding:25px; border-radius:20px; max-width: 900px; width: 100%; border:1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5); max-height: 95vh; overflow-y: auto;}
+.card-main::-webkit-scrollbar { width: 6px; }
+.card-main::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 4px; }
+h4 { color:#e2e8f0; opacity:0.9; margin-bottom: 5px; }
+.price { font-size:32px; font-weight:900; color:#22c55e; line-height: 1; margin-bottom: 5px; }
+.label { color:#94a3b8; font-size:12px; text-transform: uppercase; letter-spacing: 1px; }
+.metric { margin:6px 0; font-size:14px; color:#f1f5f9; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 4px; }
+.metric b { color:#38bdf8; font-weight:600; }
+.status-resale { color:#22c55e; } .status-repair { color:#eab308; } .status-salvage { color:#ef4444; }
+.chart-container { height: 160px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;}
+.section-title { font-size: 11px; color: #38bdf8; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; margin-bottom: 8px; }
+.phone-anatomy { width: 80px; height: 150px; border-radius: 12px; border: 3px solid #334155; position: relative; margin: 0 auto; display: flex; justify-content: center; align-items: center; background: #070b14; }
+.phone-screen { width: 85%; height: 90%; border-radius: 6px; background: #1e293b; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.hw-good { border-color: #22c55e !important; background: rgba(34, 197, 94, 0.1) !important; color: #22c55e; }
+.hw-bad { border-color: #ef4444 !important; background: rgba(239, 68, 68, 0.2) !important; color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+
+@media print { 
+    .no-print { display: none !important; } 
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+    @page { margin: 0; size: auto; }
+    body { background-color: #070b14 !important; color: #ffffff !important; padding: 0 !important; display: block;} 
+    .navbar { display: none !important; }
+    .card-main { background-color: #0d1526 !important; border: 1px solid rgba(255,255,255,0.2) !important; box-shadow: none; color: #ffffff !important; max-height: none !important; overflow: visible !important; margin: 0 auto; page-break-inside: avoid;}
+    .label, .section-title { color: #38bdf8 !important; }
+    .metric { border-bottom: 1px dashed rgba(255,255,255,0.2) !important; }
+    .metric b { color: #38bdf8 !important; }
+    .metric span { color: #ffffff !important; }
+    .text-success { color: #22c55e !important; }
+    .chart-container { background-color: rgba(0,0,0,0.5) !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+}
+</style>
+</head>
+
+<body>
+<nav class="navbar navbar-dark py-3 no-print">
+    <div class="container text-white">
+        <a href="/" class="navbar-brand fw-bold fs-4 text-decoration-none text-white">REFURB<span style="color:#38bdf8">TECH</span></a>
+        <div class="d-flex align-items-center gap-2">
+            <a href="/" class="btn btn-outline-light btn-sm"><i class="fas fa-home me-1"></i> Main Page</a>
+            <a href="/customer_login" class="btn btn-outline-light btn-sm"><i class="fas fa-user me-1"></i> Customer Login</a>
+            <a href="/dashboard" class="btn btn-outline-info btn-sm">View Inventory</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+<div class="card-main">
+    <div class="row text-center mb-3 border-bottom border-secondary pb-2">
+        <div class="col-12">
+            <h4>{{ brand }} {{ model }} <span class="fs-6 text-info fw-normal">({{ purchase_date }})</span></h4>
+            <h2 class="mb-1 {% if status == 'Resale' %}status-resale{% elif status == 'Repair' %}status-repair{% else %}status-salvage{% endif %}">{{ status }}</h2>
+            <div class="price">₹{{ price }}</div>
+            <div class="label">Final Buyback Value</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7 border-end border-secondary pe-md-4 mb-4 mb-md-0">
+            <div class="section-title"><i class="fas fa-water"></i> Value Deduction Waterfall</div>
+            <div class="chart-container"><canvas id="waterfallChart"></canvas></div>
+            <div class="section-title mt-2"><i class="fas fa-chart-line"></i> FOMO Forecaster (Next 6 Months)</div>
+            <div class="chart-container"><canvas id="fomoChart"></canvas></div>
+        </div>
+        <div class="col-md-5 ps-md-4">
+            <div class="row align-items-center mb-3">
+                <div class="col-6">
+                    <div class="section-title text-center"><i class="fas fa-mobile-alt"></i> Anatomy</div>
+                    <div class="phone-anatomy {% if heatmap.body %}hw-good{% else %}hw-bad{% endif %}">
+                        <div class="phone-screen {% if heatmap.screen %}hw-good{% else %}hw-bad{% endif %}">
+                            <i class="fas {% if heatmap.battery %}fa-battery-full hw-good{% else %}fa-battery-quarter hw-bad{% endif %} fs-5"></i>
+                            <i class="fas {% if heatmap.hardware %}fa-microchip hw-good{% else %}fa-tools hw-bad{% endif %} fs-5"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="section-title text-center"><i class="fas fa-qrcode"></i> Tracker</div>
+                    <div class="text-center p-2 rounded" style="background: rgba(56, 189, 248, 0.05); border: 1px dashed #38bdf8;">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data={{ tracking_url }}&color=38bdf8&bgcolor=070b14" class="mb-1 rounded img-fluid" alt="Tracker">
+                        <p class="small text-info mb-0 fw-bold" style="font-size: 11px;">{{ ticket_id }}</p>
+                    </div>
+                </div>
+            </div>
+
+             <div class="section-title"><i class="fas fa-list-alt"></i> Business Metrics</div>
+             <div class="metric"><b>Screen Condition:</b> <span>{{ condition }}</span></div>
+             <div class="metric"><b>Battery Health:</b> <span>{{ battery_health }}%</span></div>
+            <div class="metric"><b>Repair Cost:</b> <span>₹{{ repair_cost }}</span></div>
+            <div class="metric"><b>Estimated Resale:</b> <span>₹{{ resale_value }}</span></div>
+            <div class="metric"><b>AI Predicted Price:</b> <span>₹{{ ai_price }}</span></div>
+            <div class="metric" style="border-bottom: none;"><b>Expected Profit:</b> <span class="text-success fw-bold">₹{{ profit }} ({{ margin_perc }}%)</span></div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row gap-2 mt-3 no-print border-top border-secondary pt-3">
+        <button onclick="window.print()" class="btn btn-outline-light flex-fill fw-bold"><i class="fas fa-file-pdf"></i> Download PDF</button>
+        <a href="/" class="btn btn-outline-info flex-fill"><i class="fas fa-plus"></i> New Device</a>
+        <a href="/dashboard" class="btn btn-info flex-fill text-dark fw-bold"><i class="fas fa-table"></i> Dashboard</a>
+    </div>
+</div>
+</div>
+
+<script>
+    new Chart(document.getElementById('waterfallChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Orig', 'Age', 'Hlth', 'Final'],
+            datasets: [{
+                data: {{ waterfall|safe }},
+                backgroundColor: ['#38bdf855', '#ef444455', '#eab30855', '#22c55e55'],
+                borderColor: ['#38bdf8', '#ef4444', '#eab308', '#22c55e'], borderWidth: 1, borderRadius: 4
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: { y: { ticks: { color: '#cbd5e1', font:{size:10} }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                      x: { ticks: { color: '#cbd5e1', font:{size:10} }, grid: { display: false } } }
+        }
+    });
+
+    new Chart(document.getElementById('fomoChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: ['Now', '1m', '2m', '3m', '4m', '5m', '6m'],
+            datasets: [{
+                label: 'Value Drop', data: {{ fomo_data|safe }},
+                borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#ef4444'
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: { y: { ticks: { color: '#cbd5e1', font:{size:10} }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                      x: { ticks: { color: '#cbd5e1', font:{size:10} }, grid: { display: false } } }
+        }
+    });
+</script>
+</body>
+</html>
