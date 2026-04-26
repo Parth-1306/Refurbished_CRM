@@ -29,8 +29,9 @@ def get_db():
     }
     
     if os.environ.get("DB_USE_SSL", "false").lower() == "true":
-        config["ssl_verify_cert"] = True
-        config["ssl_verify_identity"] = True
+        config["ssl_disabled"] = False
+        config["ssl_verify_cert"] = False
+        config["ssl_verify_identity"] = False
         
     return mysql.connector.connect(**config)
 
